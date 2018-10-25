@@ -80,7 +80,7 @@ end
     isfinite(x) && return x
     if isinf(x)
         signbit(x) ? Finite64_maxneg : Finite64_maxpos
-    elseif
+    elseif iszero(x)
         signbit(x) ? Finite64_minneg : Finite64_minpos
     else
         throw(DomainError("NaN encountered"))

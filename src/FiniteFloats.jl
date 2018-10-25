@@ -1,13 +1,14 @@
-module FiniteFloats
+module FiniteFloatsnu
 
 export AbstractFinite,
        Finite64, Finite32, Finite16,
+       Finite64nu, Finite32nu, Finite16nu,
        finite,
        typemaxneg, typeminneg,
-       square, cube 
+       square, cube
 
 import Base: hash, promote_rule, convert,
-    string, show, 
+    string, show,
     typemax, typemin, floatmax, floatmin,
     significand, exponent, precision,
     unsigned, signed, float,
@@ -43,7 +44,7 @@ import LinearAlgebra: adjoint, adjoint!, axpby!, axpy!,
           issuccess, issymmetric, istril, istriu, kron, ldiv!,
           ldlt, ldlt!, lmul!, logabsdet, logdet,
           lowrankdowndate, lowrankdowndate!, lowrankupdate,
-          lowrankupdate!, lq, lq!, lu, lu!, 
+          lowrankupdate!, lq, lq!, lu, lu!,
           lyap, mul!, norm, normalize, normalize!, nullspace,
           opnorm, ordschur, ordschur!, pinv, qr, qr!,
           rank, rdiv!, rmul!, schur, schur!,
