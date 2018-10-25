@@ -175,8 +175,6 @@ for (T,F) in ( (:Finite64, :Float64), (:Finite32, :Float32), (:Finite16, :Float1
    end
 end
 
-
-
 for O in ( :flipsign, :copysign,
            :min, :max,
            :(+), :(-), # :(*), :(/), :(^),
@@ -241,8 +239,6 @@ for (T,F) in ( (:Finite64, :Float64), (:Finite32, :Float32), (:Finite16, :Float1
        clamp(x::$T, lo::$T, hi::$T) = $T( clamp($F(x), $F(lo), $F(hi)) )
    end
 end
-
-
 
 Base.promote_rule(::Type{Float64}, ::Type{Finite64}) = Finite64
 Base.promote_rule(::Type{Float32}, ::Type{Finite32}) = Finite32

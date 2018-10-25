@@ -1,8 +1,7 @@
-module FiniteFloatsnu
+module FiniteFloats
 
 export AbstractFinite,
        Finite64, Finite32, Finite16,
-       Finite64nu, Finite32nu, Finite16nu,
        finite,
        typemaxneg, typeminneg,
        square, cube
