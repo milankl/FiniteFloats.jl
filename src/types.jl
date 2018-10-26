@@ -35,12 +35,21 @@ typemaxneg(::Type{Finite64})   = -1.7976931348623157e308    # -realmax(Float64)
 typemaxneg(::Type{Finite32})   = -3.4028235f38              # -realmax(Float32)
 typemaxneg(::Type{Finite16})   = Float16(-6.55e4)           # -realmax(Float16)
 
-Base.typemin(::Type{Finite64}) = 2.2250738585072014e-308    #  realmin(Float64)
-Base.typemin(::Type{Finite32}) = 1.1754944f-38              #  realmin(Float32)
-Base.typemin(::Type{Finite16}) = Float16(6.104e-5)          #  realmin(Float16)
-typeminneg(::Type{Finite64})   = -2.2250738585072014e-308   # -realmin(Float64)
-typeminneg(::Type{Finite32})   = -1.1754944f-38             # -realmin(Float32)
-typeminneg(::Type{Finite16})   = Float16(-6.104e-5)         # -realmin(Float16)
+# without subnormal numbers
+# Base.typemin(::Type{Finite64}) = 2.2250738585072014e-308    #  realmin(Float64)
+# Base.typemin(::Type{Finite32}) = 1.1754944f-38              #  realmin(Float32)
+# Base.typemin(::Type{Finite16}) = Float16(6.104e-5)          #  realmin(Float16)
+# typeminneg(::Type{Finite64})   = -2.2250738585072014e-308   # -realmin(Float64)
+# typeminneg(::Type{Finite32})   = -1.1754944f-38             # -realmin(Float32)
+# typeminneg(::Type{Finite16})   = Float16(-6.104e-5)         # -realmin(Float16)
+
+# with subnormal numbers
+Base.typemin(::Type{Finite64}) = nextfloat(Float64(0.0))    #  realmin(Float64)
+Base.typemin(::Type{Finite32}) = nextfloat(Float32(0.0))    #  realmin(Float32)
+Base.typemin(::Type{Finite16}) = nextfloat(Float16(0.0))    #  realmin(Float16)
+typeminneg(::Type{Finite64})   = prevfloat(Float64(0.0))    # -realmin(Float64)
+typeminneg(::Type{Finite32})   = prevfloat(Float32(0.0))    # -realmin(Float32)
+typeminneg(::Type{Finite16})   = prevfloat(Float16(0.0))    # -realmin(Float16)
 
 Base.floatmax(::Type{Finite64}) = Base.typemax(Finite64)
 Base.floatmax(::Type{Finite32}) = Base.typemax(Finite32)
@@ -77,7 +86,7 @@ end
 
 """ No underflow-rounding mode for FiniteFloat64."""
 @inline function FiniteFloat64nu(x::Float64)
-    isfinite(x) && return x
+    isfinite(x) && ~iszero(x) && return x
     if isinf(x)
         signbit(x) ? Finite64_maxneg : Finite64_maxpos
     elseif iszero(x)
@@ -98,7 +107,7 @@ end
 
 """ No underflow-rounding mode for FiniteFloat32."""
 @inline function FiniteFloat32nu(x::Float32)
-    isfinite(x) && return x
+    isfinite(x) && ~iszero(x) && return x
     if isinf(x)
         signbit(x) ? Finite32_maxneg : Finite32_maxpos
     elseif iszero(x)
@@ -119,7 +128,7 @@ end
 
 """No underflow-rounding mode for FiniteFloat16."""
 @inline function FiniteFloat16nu(x::Float16)
-    isfinite(x) && return x
+    isfinite(x) && ~iszero(x) && return x
     if isinf(x)
         signbit(x) ? Finite16_maxneg : Finite16_maxpos
     elseif iszero(x)
@@ -188,14 +197,24 @@ for O in ( :flipsign, :copysign,
     end
 end
 
-# No-underflow rounding mode only for *,/,^
-for O in ( :(*), :(/), :(^) )
+# No-underflow rounding mode for /,^
+for O in ( :(/), :(^) )
     @eval begin
         $O(x::Finite64, y::Finite64) = Finite64nu($O(Float64(x), Float64(y)))
         $O(x::Finite32, y::Finite32) = Finite32nu($O(Float32(x), Float32(y)))
         $O(x::Finite16, y::Finite16) = Finite16nu($O(Float16(x), Float16(y)))
     end
 end
+
+# No-underflow rounding mode for *, however * with 0 shuold still yield zero
+for O in ( :(*), )
+    @eval begin
+        $O(x::Finite64, y::Finite64) = iszero(x) || iszero(y) ? zero(Finite64) : Finite64nu($O(Float64(x), Float64(y)))
+        $O(x::Finite32, y::Finite32) = iszero(x) || iszero(y) ? zero(Finite32) : Finite32nu($O(Float32(x), Float32(y)))
+        $O(x::Finite16, y::Finite16) = iszero(x) || iszero(y) ? zero(Finite16) : Finite16nu($O(Float16(x), Float16(y)))
+    end
+end
+
 
 for O in ( :(==), :(!=),
            :(<), :(<=), :(>=), :(>),
