@@ -84,15 +84,18 @@ const Finite16_minneg = typeminneg(Finite16)
     end
 end
 
-""" No underflow-rounding mode for FiniteFloat64."""
+""" No underflow-rounding mode for Finite64."""
 @inline function FiniteFloat64nu(x::Float64)
-    isfinite(x) && ~iszero(x) && return x
-    if isinf(x)
-        signbit(x) ? Finite64_maxneg : Finite64_maxpos
-    elseif iszero(x)
-        signbit(x) ? Finite64_minneg : Finite64_minpos
+    if isfinite(x)
+        if iszero(x)
+            return signbit(x) ? Finite64_minneg : Finite64_minpos
+        else
+            return x
+        end
+    elseif isinf(x)
+        return signbit(x) ? Finite64_maxneg : Finite64_maxpos
     else
-        throw(DomainError("NaN encountered"))
+       throw(DomainError("NaN encountered"))
     end
 end
 
@@ -105,15 +108,18 @@ end
     end
 end
 
-""" No underflow-rounding mode for FiniteFloat32."""
+""" No underflow-rounding mode for Finite32."""
 @inline function FiniteFloat32nu(x::Float32)
-    isfinite(x) && ~iszero(x) && return x
-    if isinf(x)
-        signbit(x) ? Finite32_maxneg : Finite32_maxpos
-    elseif iszero(x)
-        signbit(x) ? Finite32_minneg : Finite32_minpos
+    if isfinite(x)
+        if iszero(x)
+            return signbit(x) ? Finite32_minneg : Finite32_minpos
+        else
+            return x
+        end
+    elseif isinf(x)
+        return signbit(x) ? Finite32_maxneg : Finite32_maxpos
     else
-        throw(DomainError("NaN32 encountered"))
+       throw(DomainError("NaN32 encountered"))
     end
 end
 
@@ -126,13 +132,16 @@ end
     end
 end
 
-"""No underflow-rounding mode for FiniteFloat16."""
+"""No underflow-rounding mode for Finite16."""
 @inline function FiniteFloat16nu(x::Float16)
-    isfinite(x) && ~iszero(x) && return x
-    if isinf(x)
-        signbit(x) ? Finite16_maxneg : Finite16_maxpos
-    elseif iszero(x)
-        signbit(x) ? Finite16_minneg : Finite16_minpos
+    if isfinite(x)
+        if iszero(x)
+            return signbit(x) ? Finite16_minneg : Finite16_minpos
+        else
+            return x
+        end
+    elseif isinf(x)
+        return signbit(x) ? Finite16_maxneg : Finite16_maxpos
     else
        throw(DomainError("NaN16 encountered"))
     end
